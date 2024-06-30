@@ -7,16 +7,27 @@
 const hre = require("hardhat");
 
 async function main() {
-  const initBalance = 1;
+  const initBalance = 0;
+  const items = [
+    { name: "Item 1", price: 1 },  // Price in ETH as integer
+    { name: "Item 2", price: 2 },
+    { name: "Item 3", price: 3 },
+  ];
+
   const Assessment = await hre.ethers.getContractFactory("Assessment");
   const assessment = await Assessment.deploy(initBalance);
   await assessment.deployed();
 
-  console.log(`A contract with balance of ${initBalance} eth deployed to ${assessment.address}`);
+  console.log(`A contract with balance of ${initBalance} ETH deployed to ${assessment.address}`);
+
+  // Add items to the contract
+  for (const item of items) {
+    const tx = await assessment.addItem(item.name, ethers.utils.parseEther(item.price.toString()));
+    await tx.wait();
+    console.log(`Item "${item.name}" with price ${item.price} ETH added`);
+  }
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
